@@ -1,3 +1,18 @@
+# llama_cpp/server/settings.py
+https://llama-cpp-python.readthedocs.io/en/latest/server/#configuration-and-multi-model-support
+
+# gpustack/bge-reranker-v2-m3-GGUF
+https://huggingface.co/gpustack/bge-reranker-v2-m3-GGUF/blob/main/bge-reranker-v2-m3-Q4_0.gguf
+
+# converted to GGUF format from openbmb/MiniCPM3-4B using llama.cpp
+https://huggingface.co/ibrahimkettaneh/MiniCPM3-4B-IQ4_NL-GGUF
+
+# Here is an example how you can place a custom label inside a linear progress bar:
+https://github.com/zauberzeug/nicegui/discussions/1613
+
+# WOA packages
+https://linaro.atlassian.net/wiki/spaces/WOAR/pages/28658270210/Packages
+
 # Install hnswlib
 pip install C:\Users\966\Projects\2024.6.15-experimental-cp312-win_arm64.whl\numpy-2.0.0-cp312-cp312-win_arm64.whl
 remove numpy in install_requires
@@ -58,15 +73,13 @@ This API gives you an easy, flexible and performant way of running LLMs on devic
 onnxruntime-genai
 https://github.com/microsoft/onnxruntime-genai
 
-
 # 参赛指南
 https://img-bss.csdnimg.cn/armdasai/Armaipc.html
 更多点击活动详情了解 
 https://marketing.csdn.net/p/34a48478fffb3594b186a32a4c73dbc6?pId=2684
 
-
-
-
+# Install llama-cpp-python
+pip install llama-cpp-python -C cmake.args="-DGGML_BLAS=ON;-DGGML_BLAS_VENDOR=OpenBLAS"
 
 # Prompt
 **info** 

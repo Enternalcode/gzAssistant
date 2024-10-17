@@ -2,11 +2,40 @@ import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
+from nicegui.ui import log
+from apps.utils.common import singleton
 
+DEBUG = True
+
+@singleton
+class NiceGuiLogHandler(logging.Handler):
+    def __init__(self, log_view: log, debug: bool = False):
+        super().__init__()
+        self.log_view = log_view
+        self.debug = debug
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        if self.debug:
+            print(f"{log_entry}")
+        self.log_view.push(log_entry)
+
+    def format(self, record):
+        return f"{record.asctime} - {record.levelname} - {record.getMessage()}"
+
+@singleton
 class LogService:
-    def __init__(self, log_directory: str = '~/gzAssistant/logs/'):
-        self.log_directory = os.path.expanduser(log_directory)
+    def __init__(self, log_directory: str = None, log_view: log = None, debug: bool = False):
+        if log_directory is None:
+            self.log_directory = os.path.join("C:", "\\GZAssistantAppData\\logs\\")
+        else:
+            self.log_directory = log_directory
         os.makedirs(self.log_directory, exist_ok=True)
+        self.log_view = log_view
+        self.debug = debug
+    
+    def add_log_view(self, log_view: log) -> None:
+        self.log_view = log_view
         self.setup_logging()
 
     def setup_logging(self):
@@ -14,21 +43,26 @@ class LogService:
         current_date = datetime.now().strftime('%Y-%m-%d')
         log_file_path = os.path.join(self.log_directory, f'guangzhi_{current_date}.log')
         
-        # 创建一个按天分割的日志处理器
-        handler = TimedRotatingFileHandler(
-            log_file_path, when="midnight", interval=1, backupCount=7
+        # 创建一个按天分割的日志处理器，并指定编码为 utf-8
+        file_handler = TimedRotatingFileHandler(
+            log_file_path, when="midnight", interval=1, backupCount=7, encoding='utf-8'
         )
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
         
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
-        logger.addHandler(handler)
+        logger.addHandler(file_handler)
 
-    def log_info(self, message: str):
+        if self.log_view:
+            gui_handler = NiceGuiLogHandler(log_view=self.log_view, debug=self.debug)
+            gui_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+            logger.addHandler(gui_handler)
+
+    def info(self, message: str):
         logging.info(message)
 
-    def log_error(self, message: str):
+    def error(self, message: str):
         logging.error(message)
 
-# 实例化日志服务
-log_service = LogService()
+
+clogger = LogService(debug=DEBUG)

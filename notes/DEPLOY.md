@@ -1,3 +1,10 @@
+# https://github.com/zauberzeug/nicegui/issues/355
+package with pyinstall
+ ./AI广智.exe > output.log 2>&1
+
+# pyinstaller hook script
+ https://github.com/abetlen/llama-cpp-python/pull/709
+
 # Build llama.cpp on arm windows
 Doc: https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md
 

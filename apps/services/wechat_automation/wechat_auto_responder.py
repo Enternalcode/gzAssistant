@@ -1,9 +1,9 @@
-import numpy as np
 from uiautomation import WindowControl, MenuControl
 import time
+from apps.services.log_service import clogger
 
 class WeChatAutoResponder:
-    def __init__(self, window_title='Weixin'):
+    def __init__(self, window_title='Weixin', ):
         self.wechat_window = WindowControl(Name=window_title)
         self.session_list = None
         self.answered_messages = set()
@@ -23,9 +23,6 @@ class WeChatAutoResponder:
 
     def generate_response(self, last_message):
         """Generate a response based on the last message."""
-        # Here you can add complex logic for response generation
-        # For example, a simple keyword match response
-        # response = "This is an automated response."
         response = """
             在比赛中，可以使用以下推理框架：\n\n
             基于Arm CPU的端侧大模型推理框架：\n\n
@@ -58,8 +55,8 @@ class WeChatAutoResponder:
         """Locate a group by name and check for a keyword in messages continuously."""
         self.switch_to_wechat()
         self.bind_session_list()
+        clogger.info("监听中...")
         while True:
-            print("监听中...")
             for session in self.session_list.GetChildren()[:5]:
                 session_name = session.Name
                 if session_name == group_name:
@@ -67,7 +64,7 @@ class WeChatAutoResponder:
                     last_message = last_message_control.Name
                     message_id = id(last_message_control)
                     if keyword in last_message and message_id not in self.answered_messages:
-                        print("有人呼唤广智...")
+                        clogger.info("有人呼唤广智...")
                         response = self.generate_response(last_message)
                         time.sleep(1)
                         self.send_response(response)

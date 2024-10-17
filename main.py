@@ -1,11 +1,14 @@
-import mesop as me
+from nicegui import ui
+from apps.views._nicegui.main_page import *
+from apps.utils.config import create_folders_from_list
 
-@me.page()
-def app():
-    me.text("Hello World")
+def init():
+    """
+    环境配置
+    """
+    create_folders_from_list()
 
-wsgiapp = app
 
-if __name__ == "__main__":
-    from waitress import serve
-    serve(wsgiapp, listen='127.0.0.1:5000')
+
+init()
+ui.run(title="AI广智", dark=False)

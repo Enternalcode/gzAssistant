@@ -4,6 +4,8 @@ customtkinter==5.2.2
 hnswlib==0.8.0
 mesop==0.12.5
 pandas==2.2.3
-Requests==2.32.3
+
 uiautomation==2.0.20
 waitress==3.0.0
+llama-cpp-python -C cmake.args="-DGGML_BLAS=ON;-DGGML_BLAS_VENDOR=OpenBLAS"
+

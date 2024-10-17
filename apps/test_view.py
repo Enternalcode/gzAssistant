@@ -350,7 +350,7 @@ def save_config():
     existing_config.update(new_config)
 
     with open('config.json', 'w') as f:
-        json.dump(existing_config, f)
+        json.dump(existing_config, f, ensure_ascii=False)
 
     # Check configuration status after saving
     check_config_status()

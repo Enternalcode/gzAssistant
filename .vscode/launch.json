@@ -6,12 +6,12 @@
     "configurations": [
         {
             "name": "Python Debugger: Current File",
-            "type": "debugpy",
+            "type": "python",
             "request": "launch",
             "program": "${file}",
-            "justMyCode": false,
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "python": "${command:python.interpreterPath}"
         }
     ]
 }

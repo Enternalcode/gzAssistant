@@ -1,26 +1,43 @@
 import json
-from typing import Dict
+import os
+from typing import Dict, List
 
-def read_json_config(file_path) -> Dict:
-    """
-    读取指定路径的 JSON 配置文件，并返回 Python 字典对象。
+from tinydb import Query
 
-    :param file_path: JSON 文件的路径
-    :return: 包含配置数据的 Python 字典
-    """
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        print(f"错误：文件 '{file_path}' 未找到。")
-        return None
-    except json.JSONDecodeError:
-        print(f"错误：文件 '{file_path}' 不是有效的 JSON 格式。")
-        return None
-    except Exception as e:
-        print(f"读取文件 '{file_path}' 时发生错误：{e}")
-        return None
+from apps.services.db import DB
+from apps.utils.common import Models
 
+APPLICATION_DATA_PATH = "C:\\GZAssistantAppData"
 
-default_config_path = "apps\config.json"
-default_config = read_json_config(default_config_path)
+basic_app_data_folders = [
+        'logs', 
+        'config', 
+        'models',
+        'data',
+        'embedding'
+]
+
+def create_folders_from_list(input_list: List[str] = basic_app_data_folders) -> None:
+    for item in input_list:
+        folder_path = os.path.join(APPLICATION_DATA_PATH, item)
+        os.makedirs(folder_path, exist_ok=True)
+
+def get_config(key: str) -> Dict:
+    db = DB().db
+    config_table = db.table('config', cache_size=30)
+    query = Query()
+    store_value = config_table.search(query.key == key)
+    return store_value[0].get('value') if store_value else store_value
+
+def init_set_config() -> None:
+    db = DB().db
+    config_table = db.table('config', cache_size=30)
+    default_configs = [{
+        "key": "EMBEDDING_MODEL_PATH", "value": f"{APPLICATION_DATA_PATH}\models\{Models.embed}"
+    }]
+    query = Query()
+    for default_config in default_configs:
+        config_table.update({'value': default_config['value']}, query.key == default_config['key'])
+        if len(config_table.search(query.key == default_config['key'])) == 0:
+            config_table.insert({'key': default_config['key'], 'value': default_config['value']})
+
