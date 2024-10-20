@@ -1,30 +1,25 @@
+
+import json
 import os
-import sys
+import re
+import socket
 import httpx
 from tqdm import tqdm
 import subprocess
 from typing import Dict, List, Optional
 import psutil
 import aiofiles
-import requests
 
-class Models:
-    slm: str = "minicpm3-4b.Q4_0.gguf"
-    slm_download_url: str = "https://huggingface.co/mav23/MiniCPM3-4B-GGUF/resolve/main/minicpm3-4b.Q4_0.gguf?download=true"
-    embed: str = "bge-large-zh-v1.5-q4_0.gguf"
-    # "https://huggingface.co/SmartCreationAI/bge-large-zh-v1.5/resolve/main/bge-large-zh-v1.5-q4_0.gguf?download=true"
-    embed_download_url: str = "https://huggingface.co/SmartCreationAI/bge-large-zh-v1.5/resolve/main/bge-large-zh-v1.5-q4_0.gguf?download=true"
-
-def download_file(url: str, output_file: str) -> None:
-    response = requests.get(url, stream=True)
-    total_size_in_bytes = int(response.headers.get('content-length', 0))
-    block_size = 1024
-    progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
-    with open(output_file, 'wb') as file:
-        for data in response.iter_content(block_size):
-            progress_bar.update(len(data))
-            file.write(data)
-    progress_bar.close()
+# def download_file(url: str, output_file: str) -> None:
+#     response = requests.get(url, stream=True)
+#     total_size_in_bytes = int(response.headers.get('content-length', 0))
+#     block_size = 1024
+#     progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+#     with open(output_file, 'wb') as file:
+#         for data in response.iter_content(block_size):
+#             progress_bar.update(len(data))
+#             file.write(data)
+#     progress_bar.close()
 
 def singleton(cls):
     instances = {}
@@ -65,7 +60,8 @@ def run_llama_server_with_command(
         context_length: Optional[int] = None,
         ngl: Optional[int] = None,
         run_in_background: bool = True,
-        embedding: bool = False
+        embedding: bool = False,
+        reranking: bool = False
 ) -> None:
     """
     执行 llama-server 命令并记录日志。
@@ -76,6 +72,7 @@ def run_llama_server_with_command(
     :param ngl: 可选的 NGL 参数，默认为 None
     :param run_in_background: 是否在后台运行，默认为 True
     :param embedding: 是否启用 embedding, 默认为 False
+    :param reranking: 是否启用 reranking
     """
     command = [
         'llama-server',
@@ -85,6 +82,8 @@ def run_llama_server_with_command(
 
     if embedding:
         command.append('--embedding')
+    elif reranking:
+        command.append('--reranking')
     else:
         command.append('-c')
         command.append(str(context_length))
@@ -98,25 +97,66 @@ def run_llama_server_with_command(
     else:
         # 在前台运行
         subprocess.run(command, check=True)
-    
 
-def run_llama_server(config_file_path: str = r"C:\Users\966\Projects\GuangZhiAssistant-main\server_config.json", run_in_background: bool = True, port: int = 8866):
-    # python -m llama_cpp.server --port 8866 --config_file ./server_config.json
+async def check_server_status():
+    async with httpx.AsyncClient(proxies={}) as client:
+        response = await client.get("http://127.0.0.1:7864/docs")
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+
+
+async def run_llama_server_async(config_file_path: str = r"./server_config.json", run_in_background: bool = True, port: int = 7864):
+    # 检查配置文件是否存在
+    if not os.path.exists(config_file_path):
+        raise FileNotFoundError(f"配置文件 {config_file_path} 不存在。")
+
+    # 检查端口是否在有效范围内
+    if not 0 < port < 65536:
+        raise ValueError("端口号必须在1到65535之间。")
+
+    # 检查端口是否被占用
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(("", port))
+        sock.close()
+    except socket.error as e:
+        raise RuntimeError(f"端口 {port} 已被占用。") from e
+
     port_str = str(port)
+    config_file_abs_path = os.path.abspath(config_file_path)
     command = [
         'python',
         '-m', 
         'llama_cpp.server',
         '--port', port_str,
-        '--config_file', config_file_path
+        '--config_file', config_file_abs_path
     ]
 
+    # 记录日志
+    print(f"正在启动AI服务器，命令： {' '.join(command)}")
     if run_in_background:
-        # 在后台运行
+        # 在后台运行，捕获输出和错误
         subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
     else:
-        # 在前台运行
         subprocess.run(command, check=True)
+
+
+def send_rerank_request(query: str, documents: List[str]):
+    # llama-server -m "C:\GZAssistantAppData\models\bge-reranker-v2-m3-Q4_K_M.gguf" --port 8867 --reranking
+    url = "http://127.0.0.1:8867/v1/rerank"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "model": "some-model",
+        "query": query,
+        "top_n": 3,
+        "documents": documents
+    }
+    with httpx.Client() as client:
+        response = client.post(url, headers=headers, data=json.dumps(data))
+        return response.json()
 
 
 async def check_health(url: str) -> Dict[str, str]:
@@ -149,34 +189,31 @@ async def check_health(url: str) -> Dict[str, str]:
     except httpx.RequestError as req_err:
         return {"error": {"code": 500, "message": str(req_err)}}
 
-
 def kill_llama_servers():
     """Terminate all processes named 'llama-server.exe'."""
     for proc in psutil.process_iter(['pid', 'name']):
         if proc.info['name'] == 'llama-server.exe':
             proc.kill()
 
-def stop_llama_server(port: int = 8866):
-    # 查找占用指定端口的进程 ID
-    find_port_command = f'netstat -ano | findstr :{port}'
-    result = subprocess.run(find_port_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    lines = result.stdout.splitlines()
-    if not lines:
-        print(f'没有找到占用端口 {port} 的进程，无法关闭服务。')
-        return
-    for line in lines:
-        parts = line.split()
-        if len(parts) >= 5 and parts[1] == 'TCP':
-            pid = parts[4]
-            break
-    else:
-        print(f'没有找到占用端口 {port} 的进程，无法关闭服务。')
-        return
+def stop_llama_server(port: int = 7864):
+    kill_process_using_port(port)
 
-    # 根据进程 ID 结束进程
-    taskkill_command = f'taskkill /F /PID {pid}'
-    subprocess.run(taskkill_command, shell=True, check=True)
-    print(f'成功关闭占用端口 {port} 的服务。')
+
+def kill_process_using_port(port):
+    try:
+        result = subprocess.check_output(f'netstat -ano | findstr "{port}"', shell=True).decode()
+        lines = result.splitlines()
+        for line in lines:
+            parts = re.split(r"\s+", line)
+            if len(parts) >= 5:
+                pid = parts[4]
+                try:
+                    os.system(f"taskkill /F /PID {pid}")
+                    print(f"已杀掉占用端口{port}的进程，PID: {pid}")
+                except Exception as e:
+                    print(f"杀掉进程{pid}时出错: {e}")
+    except Exception as e:
+        print(f"查找占用端口{port}的进程时出错: {e}")
 
 
 if __name__ == '__main__':
@@ -201,5 +238,3 @@ if __name__ == '__main__':
     # health_url = "http://localhost:6666/health"
     # health_status = check_health(health_url)
     # print(health_status)
-
-    run_llama_server(Models.embed, port=6688, embedding=True, run_in_background=False)

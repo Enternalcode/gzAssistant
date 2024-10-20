@@ -15,7 +15,6 @@ class HnswlibVectorDB:
 
     def _dim(self) -> int:
         sample_vector = self.embedding_model.create_embedding("sample")['data'][0]['embedding']
-        print()
         return len(sample_vector)
 
     def initialize_index(self, max_elements: int):

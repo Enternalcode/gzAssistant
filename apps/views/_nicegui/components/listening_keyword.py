@@ -1,29 +1,29 @@
-from nicegui.ui import input
+from nicegui import ui
 from nicegui.events import GenericEventArguments
 from apps.services.db import DB
 from tinydb import Query
 from apps.views._nicegui.components.utils import get_stored_content
 
 
-default_config_key = "slm_model_url"
+default_config_key = "listening_keyword"
 
 
-def document_input() -> input:
+def listening_keyword_input() -> input:
     db = DB().db
-    options = ['https://', 'http://']
+    options = ['@']
     config_table = db.table('config', cache_size=30)
     query = Query()
-    stored_document_url = get_stored_content(default_config_key)
+    stored_content = get_stored_content(default_config_key)
     input_value = None
-    if stored_document_url:
-        input_value = {"value": stored_document_url}
+    if stored_content:
+        input_value = {"value": stored_content}
     else:
-        default_url = "https://img-bss.csdnimg.cn/armdasai/Armaipc.html"
-        default_value = {"value": default_url}
-        config_table.insert({'key': default_config_key, 'value': default_url})
+        default_content = "@群AI助手"
+        default_value = {"value": default_content}
+        config_table.insert({'key': default_config_key, 'value': default_content})
         input_value = default_value
-        
-    input_component = input(label='文档网址', placeholder='https://', autocomplete=options).bind_value(input_value, 'value')
+    
+    input_component = ui.input(label='监听关键词', placeholder='@AI助手', autocomplete=options).bind_value(input_value, 'value').tooltip("群聊任何消息以此关键词开头,都会触发AI,请谨慎选择关键词")
 
     # 定义 on_change 函数
     def on_change(e: GenericEventArguments):

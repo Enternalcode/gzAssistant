@@ -5,25 +5,25 @@ from tinydb import Query
 from apps.views._nicegui.components.utils import get_stored_content
 
 
-default_config_key = "slm_model_url"
+default_config_key = "cosin_distance_threshold_input"
 
 
-def document_input() -> input:
+def cosin_distance_threshold_input() -> input:
     db = DB().db
-    options = ['https://', 'http://']
+    options = ['0.47', '0.42']
     config_table = db.table('config', cache_size=30)
     query = Query()
-    stored_document_url = get_stored_content(default_config_key)
+    sotred_value = get_stored_content(default_config_key)
     input_value = None
-    if stored_document_url:
-        input_value = {"value": stored_document_url}
+    if sotred_value:
+        input_value = {"value": sotred_value}
     else:
-        default_url = "https://img-bss.csdnimg.cn/armdasai/Armaipc.html"
+        default_url = '0.47'
         default_value = {"value": default_url}
         config_table.insert({'key': default_config_key, 'value': default_url})
         input_value = default_value
         
-    input_component = input(label='文档网址', placeholder='https://', autocomplete=options).bind_value(input_value, 'value')
+    component = input(label='分数', placeholder='0.47', autocomplete=options).bind_value(input_value, 'value')
 
     # 定义 on_change 函数
     def on_change(e: GenericEventArguments):
@@ -32,6 +32,6 @@ def document_input() -> input:
         if len(config_table.search(query.key == default_config_key)) == 0:
             config_table.insert({'key': default_config_key, 'value': new_value})
 
-    input_component.on('update:modelValue', on_change)
+    component.on('update:modelValue', on_change)
 
-    return input_component
+    return component

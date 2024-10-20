@@ -1,11 +1,8 @@
-import json
+
 import os
 from typing import Dict, List
-
 from tinydb import Query
-
 from apps.services.db import DB
-from apps.utils.common import Models
 
 APPLICATION_DATA_PATH = "C:\\GZAssistantAppData"
 
@@ -32,9 +29,11 @@ def get_config(key: str) -> Dict:
 def init_set_config() -> None:
     db = DB().db
     config_table = db.table('config', cache_size=30)
-    default_configs = [{
-        "key": "EMBEDDING_MODEL_PATH", "value": f"{APPLICATION_DATA_PATH}\models\{Models.embed}"
-    }]
+    default_configs = [
+        {
+            "key": "distance_threshold", "value": 0.47
+        }
+    ]
     query = Query()
     for default_config in default_configs:
         config_table.update({'value': default_config['value']}, query.key == default_config['key'])

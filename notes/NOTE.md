@@ -1,3 +1,6 @@
+# llvm llama env
+C:\Users\966\Projects\llama.cpp-master-llvm\build-arm64-windows-llvm-release\bin
+
 # llama_cpp/server/settings.py
 https://llama-cpp-python.readthedocs.io/en/latest/server/#configuration-and-multi-model-support
 

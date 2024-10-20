@@ -42,6 +42,10 @@ class ForkManage:
                 if not exclude_link_url.__contains__(child_url):
                     self.fork_child(child_link, selector_list, level - 1, exclude_link_url, fork_handler)
 
+    def pure_fork(self) -> str:
+        response = Fork(self.base_url, [], self.logger).fork(pure_res=True)
+        return response
+
 
 def remove_fragment(url: str) -> str:
     parsed_url = urlparse(url)
@@ -150,7 +154,7 @@ class Fork:
                 return BeautifulSoup(html_content, "html.parser")
         return beautiful_soup
 
-    def fork(self):
+    def fork(self, pure_res: bool = False):
         try:
 
             headers = {
@@ -170,6 +174,8 @@ class Fork:
         link_list = self.get_child_link_list(bf)
         content = self.get_content_html(bf)
         r = ht.html2text(content)
+        if pure_res:
+            return r
         return Fork.Response.success(r, link_list)
 
 

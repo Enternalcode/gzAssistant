@@ -3,7 +3,7 @@
     "port": 7864,
     "models": [
         {
-            "model": "C:\\GZAssistantAppData\\models\\qwen2.5-1.5b-instruct-q4_k_m.gguf",
+            "model": "C:\\GZAssistantAppData\\models\\bge-large-zh-v1.5-q4_0.gguf",
             "model_alias": "slm",
             "chat_format": "llama-2",
             "n_gpu_layers": 0,
@@ -14,12 +14,20 @@
             "verbose": false
         },
         {
-            "model": "C:\\GZAssistantAppData\\models\\bge-large-zh-v1.5-q4_k_m.gguf",
+            "model": "C:\\GZAssistantAppData\\models\\labse.Q4_K_M.gguf",
             "model_alias": "ebed",
             "n_ctx": 2048,
             "n_gpu_layers": 0,
             "embedding": true,
             "verbose": false
+        },
+        {
+            "model": "C:\\GZAssistantAppData\\models\\bge-reranker-v2-m3-Q4_0.gguf",
+            "model_alias": "reranker",
+            "n_ctx": 2048,
+            "n_gpu_layers": 0,
+            "embedding": true,
+            "verbose": true
         }
     ]
 }
