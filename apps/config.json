@@ -1,7 +1,0 @@
-{
-    "EMBEDDING_MODEL_PATH": "C:\\Users\\shelby\\gz_assistent\\models\\bge-large-zh-v1.5-f16.gguf", 
-    "SLM_MODEL_PATH": "C:\\Users\\shelby\\Downloads\\Llama-3.2-1B-Instruct-Q8_0.gguf",
-    "LOCAL_DATA_FOLDER": "apps\\data", 
-    "GROUP_NAME": "arm64\u521b\u65b0\u5e94\u7528\u5c0f\u8d5b", 
-    "KEYWORD": "@\u9ed1\u795e\u8bdd\u5e7f\u667a"
-}

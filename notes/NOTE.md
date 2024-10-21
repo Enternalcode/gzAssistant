@@ -1,3 +1,6 @@
+# FunClip
+https://github.com/modelscope/FunClip?tab=readme-ov-file#Install
+
 # llvm llama env
 C:\Users\966\Projects\llama.cpp-master-llvm\build-arm64-windows-llvm-release\bin
 
