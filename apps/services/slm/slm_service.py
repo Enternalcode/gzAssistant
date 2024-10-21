@@ -3,12 +3,10 @@ from typing import List, Dict, Any
 from apps.utils.common import singleton
 TIMEOUT_SECS = 120
 
-@singleton
 class SlmService:
-    def __init__(self, base_url: str, api_key: str, logger) -> None:
+    def __init__(self, base_url: str, api_key: str) -> None:
         self.base_url = base_url
         self.api_key = api_key
-        self.logger = logger
     
     def chat_sync(self, messages: List[Dict[str, str]], model: str = "slm", only_msg: bool = True) -> Dict[str, Any] | str:
         url = f"{self.base_url}/v1/chat/completions"
@@ -23,7 +21,7 @@ class SlmService:
         with httpx.Client(proxies={}) as client:
             response = client.post(url, headers=headers, json=payload, timeout=TIMEOUT_SECS)
             if response.status_code != 200:
-                self.logger.error(f"Request failed: {response}")
+                print(f"Request failed: {response}")
                 return response
             json_res = response.json()
             if only_msg:
@@ -45,7 +43,7 @@ class SlmService:
         async with httpx.AsyncClient(proxies={}) as client:
             response = await client.post(url, headers=headers, json=payload, timeout=TIMEOUT_SECS)
             if response.status_code != 200:
-                self.logger.error(f"Request failed: {response}")
+                print(f"Request failed: {response}")
                 return response
             json_res = response.json()
             if only_msg:
@@ -69,7 +67,7 @@ class SlmService:
             response = client.post(url, headers=headers, json=payload, timeout=TIMEOUT_SECS)
             
             if response.status_code != 200:
-                self.logger.error(f"Request failed: {response}")
+                print(f"Request failed: {response}")
                 return response
             
             json_res = response.json()
@@ -92,7 +90,7 @@ class SlmService:
         async with httpx.AsyncClient(proxies={}) as client:
             response = await client.post(url, headers=headers, json=payload, timeout=TIMEOUT_SECS)
             if response.status_code != 200:
-                self.logger.error(f"Request failed: {response}")
+                print(f"Request failed: {response}")
                 return response
             json_res = response.json()
             if only_embeds:
@@ -118,7 +116,7 @@ class SlmService:
         with httpx.Client(proxies={}) as client:
             response = client.post(url, headers=headers, json=payload, timeout=TIMEOUT_SECS)
             if response.status_code != 200:
-                self.logger.error(f"Request failed: {response}")
+                print(f"Request failed: {response}")
                 return response
             
             json_res = response.json()

@@ -4,17 +4,14 @@ from datetime import datetime
 from apps.services.slm.slm_service import SlmService
 from apps.services.vector_search.hnswlib_vectordb import HnswlibVectorDB
 from apps.utils.config import APPLICATION_DATA_PATH
-from apps.services.log_service import clogger
 from apps.views._nicegui.components.utils import disable
 
 ai_service = SlmService(
     base_url="http://127.0.0.1:7864",
-    api_key="no key",
-    logger=clogger
+    api_key="no key"
 )
 
-@ui.page('/qa')
-async def faq_page():
+def faq_page():
     # Connect to SQLite database, create if it doesn't exist
     db_file= f"{APPLICATION_DATA_PATH}/data/gz.db"
     conn = sqlite3.connect(db_file)
@@ -36,17 +33,16 @@ async def faq_page():
         with disable(button):
             qa_page_state.processing_question = True
             try:
-                clogger.info("开始训练AI...")
                 ui.notify("开始训练AI...", type="positive")
                 questions = get_all_questions()
                 vector_db = HnswlibVectorDB(ai_service=ai_service, fixed_dim=1024)
-                vector_db.initialize_index(max_elements=1000)
-                clogger.info("向量化处理中...")
+                vector_db.initialize_index(max_elements=100, M=16)
                 ui.notify("向量化处理中...", type="positive")
                 await vector_db.add_texts_async(questions)
                 vector_db.save("qa_index.bin", "qa_texts.json")
-                clogger.info("数据处理完毕")
                 ui.notify("AI训练完成，结果已保存。", type="positive")
+            except Exception:
+                ui.notification("训练失败，请检查AI服务是否正常", type="negative")
             finally:
                 qa_page_state.processing_question = False
 
@@ -125,6 +121,11 @@ async def faq_page():
         {'name': 'delete', 'label': '删除', 'field': 'delete'}
     ]
 
+    with ui.column().classes('w-full justify-center items-center'):
+        ui.markdown("### 问答知识库")
+        ui.label("AI将会匹配与用户问题最接近的问题，并将其答案作为补充信息提供给AI").classes("text-gray-400")
+        ui.label("AI实现检索最低要求报表内数据不少于5条，且主页的检索返回条数必须小于总数据条数").classes("text-red-400 text-bold")
+
     # Display input fields and add button
     with ui.card().classes('w-full'):
         question_input = ui.input('问题').classes('w-full')
@@ -132,8 +133,7 @@ async def faq_page():
         ui.button('添加', icon='add', color='accent', on_click=add_question_answer).classes('w-full')
 
 
-    ui.button("训练AI", on_click=train_ai).classes('w-full')
-
+    ui.button("训练AI", on_click=lambda e: train_ai(e.sender)).classes('w-full').tooltip('修改数据后，请务必重新训练')
 
     # Create the table
     table = ui.table(columns=columns, rows=[], row_key='id').classes('w-full')  # Initialize with an empty list

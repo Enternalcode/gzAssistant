@@ -122,7 +122,7 @@ async def run_llama_server_async(config_file_path: str = r"./server_config.json"
         sock.bind(("", port))
         sock.close()
     except socket.error as e:
-        raise RuntimeError(f"端口 {port} 已被占用。") from e
+        print(f"端口 {port} 已被占用。")
 
     port_str = str(port)
     config_file_abs_path = os.path.abspath(config_file_path)

@@ -19,12 +19,11 @@ class HnswlibVectorDB:
 
     def _dim(self) -> int:
         sample_vector = self.ai_service.embeddings_sync("hello")
-        print(f"len(sample_vector): {len(sample_vector)}")
         return len(sample_vector)
 
-    def initialize_index(self, max_elements: int):
+    def initialize_index(self, max_elements: int, M: int = 16):
         self.index = hnswlib.Index(space='cosine', dim=self.dim)
-        self.index.init_index(max_elements=max_elements, ef_construction=200, M=16)
+        self.index.init_index(max_elements=max_elements, ef_construction=200, M=M)
         self.index.set_ef(10)
     
     def embed_texts(self, texts: List[str]) -> List[np.array]:
@@ -51,10 +50,10 @@ class HnswlibVectorDB:
         self.texts.extend(texts)
         self.index.add_items(vectors, ids=np.arange(len(self.texts)))
 
-    def search(self, query: str, k: int = 5, get_best: bool = True) -> Optional[Tuple[str, float]]:
+    def search(self, query: str, k: str = '3', get_best: bool = True) -> Optional[Tuple[str, float]]:
         try:
             query_vector = self.ai_service.embeddings_sync(query)
-            labels, distances = self.index.knn_query(query_vector, k=k)
+            labels, distances = self.index.knn_query(query_vector, k=int(k))
             
             # 修改条件判断
             if not np.any(labels) or not np.any(distances):
@@ -76,10 +75,10 @@ class HnswlibVectorDB:
             print(f"An error occurred: {e}")
             return None
     
-    async def search_async(self, query: str, k: int = 5, get_best: bool = True, distance_threshold: float = 0.46) -> Optional[Tuple[str, float]] | list:
+    async def search_async(self, query: str, k: str = '3', get_best: bool = True, distance_threshold: float = 0.46) -> Optional[Tuple[str, float]] | list:
         try:
             query_vector = await self.ai_service.embeddings_async(query)
-            labels, distances = self.index.knn_query(query_vector, k=k)
+            labels, distances = self.index.knn_query(query_vector, k=int(k))
 
             if not np.any(labels) or not np.any(distances):
                 raise ValueError("No results returned from the index.")

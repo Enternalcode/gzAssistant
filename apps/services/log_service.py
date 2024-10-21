@@ -5,34 +5,28 @@ from datetime import datetime
 from nicegui.ui import log
 from apps.utils.common import singleton
 
-DEBUG = True
-
 @singleton
 class NiceGuiLogHandler(logging.Handler):
-    def __init__(self, log_view: log, debug: bool = False):
+    def __init__(self, log_view: log):
         super().__init__()
         self.log_view = log_view
-        self.debug = debug
 
     def emit(self, record):
         log_entry = self.format(record)
-        if self.debug:
-            print(f"{log_entry}")
         self.log_view.push(log_entry)
 
     def format(self, record):
         return f"{record.asctime} - {record.levelname} - {record.getMessage()}"
 
-@singleton
 class LogService:
-    def __init__(self, log_directory: str = None, log_view: log = None, debug: bool = False):
+    def __init__(self, log_directory: str = None, log_view: log = None, name: str = None):
         if log_directory is None:
             self.log_directory = os.path.join("C:", "\\GZAssistantAppData\\logs\\")
         else:
             self.log_directory = log_directory
         os.makedirs(self.log_directory, exist_ok=True)
         self.log_view = log_view
-        self.debug = debug
+        self.name = name
     
     def add_log_view(self, log_view: log) -> None:
         self.log_view = log_view
@@ -49,12 +43,12 @@ class LogService:
         )
         file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
         
-        logger = logging.getLogger()
+        logger = logging.getLogger(name=self.name)
         logger.setLevel(logging.INFO)
         logger.addHandler(file_handler)
 
         if self.log_view:
-            gui_handler = NiceGuiLogHandler(log_view=self.log_view, debug=self.debug)
+            gui_handler = NiceGuiLogHandler(log_view=self.log_view)
             gui_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
             logger.addHandler(gui_handler)
 
@@ -63,6 +57,3 @@ class LogService:
 
     def error(self, message: str):
         logging.error(message)
-
-
-clogger = LogService(debug=DEBUG)
