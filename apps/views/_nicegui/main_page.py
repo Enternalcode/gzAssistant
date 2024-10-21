@@ -4,14 +4,13 @@ from apps.services.add_external_data.crawler.fork import ForkManage, split_by_fi
 from apps.services.slm.slm_service import SlmService
 from apps.services.vector_search.hnswlib_vectordb import HnswlibVectorDB
 from apps.services.wechat_automation.wechat_auto_responder import WeChatAutoResponder
-from apps.utils.common import check_server_status, run_llama_server_async, stop_llama_server
+from apps.utils.common import check_server_status, run_llama_server_async
 from apps.views._nicegui.components.cosin_distance_threshold_input import cosin_distance_threshold_input
 from apps.views._nicegui.components.document_input import document_input
 from apps.services.log_service import clogger
-from contextlib import contextmanager
 from apps.views._nicegui.components.listening_group_name_input import listening_group_name_input
 from apps.views._nicegui.components.listening_keyword import listening_keyword_input
-from apps.views._nicegui.components.utils import get_stored_content
+from apps.views._nicegui.components.utils import disable, get_stored_content
 from .qa_page import faq_page
 
 
@@ -27,6 +26,7 @@ class MainPageState:
         self.ai_thinking: bool = False
         self.chat_content: str = "比赛可以使用哪些推理框架"
         self.whether_use_web_data: bool = True
+        self.whether_use_qa_data: bool = False
         self.distance_threshold: float = 0.47
 
 main_page_state = MainPageState()
@@ -62,6 +62,7 @@ def main_content():
             with ui.row().classes('w-full justify-start items-center'):
                 cosin_distance_threshold_input()
                 ui.switch('使用文档网址知识库').bind_value(main_page_state, 'whether_use_web_data')
+                ui.switch('使用问答知识库').bind_value(main_page_state, 'whether_use_qa_data')
             chat_input = ui.input(label="发送给AI").bind_value(main_page_state, 'chat_content').classes("w-full")
             with ui.row().classes('w-full'):
                 ui.button(
@@ -76,14 +77,6 @@ def main_content():
             ui.label("运行前请确保已打开需要监听的微信群聊，运行后键盘鼠标将交由AI控制，为避免异常请不要继续操作。").classes("text-red-400 text-bold")
             ui.button("运行程序", on_click=lambda e: start_listening(e.sender))
 
-
-@contextmanager
-def disable(button: ui.button):
-    button.disable()
-    try:
-        yield
-    finally:
-        button.enable()
 
 async def check_ai_server_status(button: ui.button, ai_server_status_icon: ui.icon):
     status = await check_server_status()
@@ -130,7 +123,12 @@ async def check_slm_service(button: ui.button, user_content: str) -> None:
             auto_responder  = WeChatAutoResponder(ai_service=ai_service, logger=clogger)
             distance_threshold = get_stored_content('cosin_distance_threshold_input')
             print("distance_threshold:", distance_threshold, type(distance_threshold))
-            ai_response = await auto_responder.generate_response(last_message=user_content, is_use_web_data=main_page_state.whether_use_web_data, distance_threshold=distance_threshold)
+            ai_response = await auto_responder.generate_response(
+                last_message=user_content, 
+                is_use_web_data=main_page_state.whether_use_web_data, 
+                is_use_qa_data=main_page_state.whether_use_qa_data,
+                distance_threshold=distance_threshold
+            )
             clogger.info(f"ai回复:\n{ai_response}")
         finally:
             main_page_state.ai_thinking = False
@@ -157,7 +155,7 @@ def main_page():
     with ui.left_drawer(top_corner=True, bottom_corner=True).style("background-color: #ebf1fa").props('bordered') as left_drawer:
         ui.markdown("#### 菜单")
         with ui.column():
-            ui.button(text="补充问答", icon='savings', on_click=lambda: ui.navigate.to('/qa'))
+            ui.button(text="问答知识库", icon='savings', on_click=lambda: ui.navigate.to('/qa'))
             ui.button(text="使用说明", icon="book", on_click=lambda: ui.navigate.to('https://www.nicheecho.com/instructions/wechat-ai'))
 
     with ui.footer().style("background-color: #3874c8").classes(

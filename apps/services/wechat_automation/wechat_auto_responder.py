@@ -1,8 +1,10 @@
 import asyncio
+import sqlite3
 import time
 from uiautomation import WindowControl
 from apps.services.slm.slm_service import SlmService
 from apps.services.vector_search.hnswlib_vectordb import HnswlibVectorDB
+from apps.utils.config import APPLICATION_DATA_PATH
 
 class WeChatAutoResponder:
     def __init__(self, ai_service: SlmService, logger, window_title='Weixin', fixed_dim: int = 1024):
@@ -27,20 +29,46 @@ class WeChatAutoResponder:
         last_message_control = self.wechat_window.ListControl(Name=element_name).GetChildren()[-1]
         return last_message_control.Name
 
-    async def generate_response(self, last_message: str, is_use_web_data: bool = True, distance_threshold: float | str = 0.47) -> str:
+    def get_answer_by_question(self, question: str, db_file: str = f"{APPLICATION_DATA_PATH}/data/gz.db") -> str:
+        conn = sqlite3.connect(db_file)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute('SELECT answer FROM questions_answers WHERE question = ?', (question,))
+            result = cursor.fetchone()
+
+            if result is not None:
+                return result[0]
+            else:
+                return ""
+        finally:
+            conn.close()
+
+    async def generate_response(self, 
+                                last_message: str, 
+                                is_use_web_data: bool = True, 
+                                is_use_qa_data: bool = False,
+                                distance_threshold: float | str = 0.47) -> str:
         if isinstance(distance_threshold, str):
             distance_threshold = float(distance_threshold)
         web_knowledge = ""
+
+        system_prompt = """你是AI助手，用中文回答,回答要简洁，字数控制在50字"""
         if is_use_web_data:
             self.vector_db.load("url_index.bin", "url_texts.json")
-            web_knowledge, distance = await self.vector_db.search_async(last_message, k=5, distance_threshold=distance_threshold)
-            self.logger.info(f"匹配上知识库的信息: \n{web_knowledge}\n分数：{distance}")
+            web_knowledge, web_distance = await self.vector_db.search_async(last_message, k=5, distance_threshold=distance_threshold)
+            self.logger.info(f"匹配到文档知识库内容:\n{web_knowledge}\n分数:{web_distance}")
+            system_prompt += f"""\n使用知识库信息回答用户:{web_knowledge}"""
         
-        system_prompt = f"""
-        你是AI助手，用中文回答,回答要简洁，字数控制在50字
-        补充信息:
-        {web_knowledge}
-        """
+        if is_use_qa_data:
+            self.vector_db.load("qa_index.bin", "qa_texts.json")
+            qa_question, qa_distance = await self.vector_db.search_async(last_message, k=10, distance_threshold=distance_threshold)
+            # 找到最相似的问题，并查找预设的答案
+            qa_answer = self.get_answer_by_question(question=qa_question)
+            self.logger.info(f"匹配问答知识库:\n问题:\n{qa_question}\n回答:\n{qa_answer}\n分数:{qa_distance}")
+            system_prompt  += """\n使用预设答案回答用户: {qa_answer}"""
+        
+        print(f"system_prompt: \n{system_prompt}")
 
         messages = [
             {"role": "system", "content": system_prompt},

@@ -1,8 +1,17 @@
-from nicegui import ui
+from nicegui import ui, events
 import sqlite3
 from datetime import datetime
-from nicegui import events, ui
+from apps.services.slm.slm_service import SlmService
+from apps.services.vector_search.hnswlib_vectordb import HnswlibVectorDB
 from apps.utils.config import APPLICATION_DATA_PATH
+from apps.services.log_service import clogger
+from apps.views._nicegui.components.utils import disable
+
+ai_service = SlmService(
+    base_url="http://127.0.0.1:7864",
+    api_key="no key",
+    logger=clogger
+)
 
 @ui.page('/qa')
 async def faq_page():
@@ -10,6 +19,36 @@ async def faq_page():
     db_file= f"{APPLICATION_DATA_PATH}/data/gz.db"
     conn = sqlite3.connect(db_file)
     cursor = conn.cursor()
+
+    class QAPageState:
+        def __init__(self) -> None:
+            self.processing_question: bool = False
+
+    qa_page_state = QAPageState()
+
+    def get_all_questions():
+        # 查询所有问题
+        cursor.execute('SELECT question FROM questions_answers')
+        questions = [row[0] for row in cursor.fetchall()]  # 获取所有问题
+        return questions
+
+    async def train_ai(button: ui.button):
+        with disable(button):
+            qa_page_state.processing_question = True
+            try:
+                clogger.info("开始训练AI...")
+                ui.notify("开始训练AI...", type="positive")
+                questions = get_all_questions()
+                vector_db = HnswlibVectorDB(ai_service=ai_service, fixed_dim=1024)
+                vector_db.initialize_index(max_elements=1000)
+                clogger.info("向量化处理中...")
+                ui.notify("向量化处理中...", type="positive")
+                await vector_db.add_texts_async(questions)
+                vector_db.save("qa_index.bin", "qa_texts.json")
+                clogger.info("数据处理完毕")
+                ui.notify("AI训练完成，结果已保存。", type="positive")
+            finally:
+                qa_page_state.processing_question = False
 
     # Create table if it doesn't exist
     cursor.execute('''
@@ -87,13 +126,17 @@ async def faq_page():
     ]
 
     # Display input fields and add button
-    with ui.card():
+    with ui.card().classes('w-full'):
         question_input = ui.input('问题').classes('w-full')
         answer_input = ui.input('回答').classes('w-full')
         ui.button('添加', icon='add', color='accent', on_click=add_question_answer).classes('w-full')
 
+
+    ui.button("训练AI", on_click=train_ai).classes('w-full')
+
+
     # Create the table
-    table = ui.table(columns=columns, rows=[], row_key='id').classes('w-90')  # Initialize with an empty list
+    table = ui.table(columns=columns, rows=[], row_key='id').classes('w-full')  # Initialize with an empty list
     update_table()  # Load initial data into the table
 
     # Table body slots for edit and delete
@@ -134,4 +177,6 @@ async def faq_page():
 
     table.on('update', update_record)
     table.on('delete', delete_record)
+
+    
 

@@ -1,6 +1,7 @@
 from tinydb import Query
 from apps.services.db import DB
-
+from contextlib import contextmanager
+from nicegui import ui
 
 def get_stored_content(config_key: str):
     db = DB().db
@@ -10,3 +11,12 @@ def get_stored_content(config_key: str):
     if store_value:
         return store_value[0]["value"]
     return None
+
+
+@contextmanager
+def disable(button: ui.button):
+    button.disable()
+    try:
+        yield
+    finally:
+        button.enable()
