@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from apps.views._nicegui.components.listening_group_name_input import listening_group_name_input
 from apps.views._nicegui.components.listening_keyword import listening_keyword_input
 from apps.views._nicegui.components.utils import get_stored_content
+from .qa_page import faq_page
 
 
 ai_service = SlmService(
@@ -147,16 +148,18 @@ async def start_listening(button: ui.button):
 @ui.page("/")
 def main_page():
     with ui.header(elevated=True).style("background-color: #3874c8").classes(
-        "items-center justify-center"
+        "items-center justify-between"
     ):
+        ui.button(on_click=lambda: left_drawer.toggle(), icon='menu').props('flat color=white')
         ui.markdown("### 微信运营助手")
-        # ui.button(on_click=lambda: right_drawer.toggle(), icon='menu').props('flat color=white')
-    with ui.left_drawer(top_corner=True, bottom_corner=True).style(
-        "background-color: #d7e3f4"
-    ):
+        ui.markdown('')
+
+    with ui.left_drawer(top_corner=True, bottom_corner=True).style("background-color: #ebf1fa").props('bordered') as left_drawer:
         ui.markdown("#### 菜单")
-    # with ui.right_drawer(fixed=False).style('background-color: #ebf1fa').props('bordered') as right_drawer:
-    #     ui.label('RIGHT DRAWER')
+        with ui.column():
+            ui.button(text="补充问答", icon='savings', on_click=lambda: ui.navigate.to('/qa'))
+            ui.button(text="使用说明", icon="book", on_click=lambda: ui.navigate.to('https://www.nicheecho.com/instructions/wechat-ai'))
+
     with ui.footer().style("background-color: #3874c8").classes(
         "items-center justify-center"
     ):
