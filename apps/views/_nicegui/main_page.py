@@ -1,5 +1,6 @@
 
 import asyncio
+import logging
 from nicegui import ui
 from apps.services.add_external_data.crawler.fork import ForkManage, split_by_fixed_length_optimized
 from apps.services.slm.slm_service import SlmService
@@ -15,28 +16,48 @@ from apps.views._nicegui.components.listening_keyword import listening_keyword_i
 from apps.views._nicegui.components.utils import disable, get_stored_content
 from .qa_page import faq_page
 
-clogger = LogService()
+clogger = LogService().setup_logging()
 
 ai_service = SlmService(
     base_url="http://127.0.0.1:7864",
     api_key="no key"
 )
 
+class LogElementHandler(logging.Handler):
+    """A logging handler that emits messages to a log element."""
+
+    def __init__(self, element, level = logging.NOTSET):
+        self.element = element
+        self.time_format = "%Y-%m-%d %H:%M:%S"
+        super().__init__(level)
+
+    def emit(self, record):
+        try:
+            formatter = logging.Formatter('%(asctime)s - %(message)s', self.time_format)
+            msg = formatter.format(record)
+            self.element.push(msg)
+        except Exception as e:
+            self.handleError(record)
+
+
 class MainPageState:
     def __init__(self) -> None:
         self.processing_document: bool = False
         self.ai_thinking: bool = False
-        self.chat_content: str = "你好"
+        self.chat_content: str = "比赛可以使用哪些推理框架"
         self.whether_use_web_data: bool = True
         self.whether_use_qa_data: bool = False
         self.distance_threshold: float = 0.47
 
 main_page_state = MainPageState()
 
+
 def main_content():
     # 运行日志模块
-    run_log_view = ui.log(max_lines=100).classes("w-full")
-    clogger.add_log_view(run_log_view)
+    log_view = ui.log(max_lines=100).classes("w-full")
+    handler = LogElementHandler(log_view)
+    clogger.addHandler(handler)
+    ui.context.client.on_disconnect(lambda: clogger.removeHandler(handler))
     clogger.info("欢迎使用AI广智")
 
     with ui.column():
@@ -116,7 +137,7 @@ async def start_slm_services(button: ui.button, ai_server_status_icon: ui.icon):
     with disable(button):
         await run_llama_server_async(run_in_background=True)
         clogger.info("启动AI服务, 启动过程需要3s左右")
-        await asyncio.sleep(2.5)
+        await asyncio.sleep(3)
         await check_ai_server_status(button, ai_server_status_icon)        
 
 async def check_slm_service(button: ui.button, user_content: str) -> None:
@@ -142,7 +163,17 @@ async def start_listening(button: ui.button):
         auto_responder  = WeChatAutoResponder(ai_service=ai_service, logger=clogger)
         listening_group_name = get_stored_content('listening_group_name')
         listening_keyword = get_stored_content('listening_keyword')
-        await auto_responder.locate_group_and_check_keyword(listening_group_name, listening_keyword)
+        distance_threshold = get_stored_content('cosin_distance_threshold_input')
+        k = get_stored_content('k')
+        await auto_responder.locate_group_and_check_keyword(
+            group_name=listening_group_name, 
+            keyword=listening_keyword,
+            detection_frequency=10,
+            is_use_web_data=main_page_state.whether_use_web_data, 
+            is_use_qa_data=main_page_state.whether_use_qa_data,
+            distance_threshold=distance_threshold,
+            k=k
+            )
         clogger.info(f"开始监听, 群名：{listening_group_name}, 关键词：{listening_keyword}")
         ui.notify("开始监听", type="positive")
 

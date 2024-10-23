@@ -22,6 +22,3 @@ https://medium.com/@cch.chichieh/%E7%94%A8%E6%89%8B%E6%A9%9F%E5%B0%B1%E8%83%BD%E
 
 # PowerInfer-Colab-Demo
 https://github.com/AIAnytime/PowerInfer-Colab-Demo/blob/main/PowerInfer.ipynb
-
-
-llama-cli -m Llama-3.2-1B-Instruct-Q4_0_4_4.gguf -p "I believe the meaning of life is" -n 128

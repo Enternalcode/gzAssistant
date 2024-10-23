@@ -1,1 +1,15 @@
-# t = [('）\n\n待补充更多指定任务题目\n\n## 二、底层构建思路选择\n\n### 思路一：构建或迁移 Windows 应用，使其在 Arm64 上实现完全原生运行，并获得显著的性能提升\n\n**参考内容**  \n[针对 Arm 平台构建 .NET应用 ](https://learn.arm.com/learning-paths/laptops-and-\ndesktops/win_net/)  \n· 在 Windows on Arm 机器上构建并运行 .NET6 Windows Presentation Foundation (WPF) 应用。\n\n[在 Windows on Arm (WoA) 上进行 .NET8 应用基准测试](https://learn.arm.com/learning-\npaths/laptops-and-desktops/win_net8/)  \n· 按照这个基于 .NET8 的教程示例，衡量将 应用移植到原生 Arm 代码后能获得的显著性能提升。\n\n[在 WoA 上创建 Windows Forms 应用](https://learn.arm.com/learning-paths/laptops-and-\ndesktops/win_forms/)', np.float32(0.5238197)), ('**\n\n以上决赛所需提交资料请以 zip\n格式打包提交(原则不超过200M)；如提交代码文件，则请提交包含有完整项目代码及可完整编译并运行的源代码文件。**在该打包文件中请同时提供能正确运行所递交代码的环境依赖信息及其他补充说明，同时如过期未提交决赛作品或中途放弃，主办方将选择候选团队继续进入决赛。**  \n  \n决赛优胜者将受邀参加Arm Tech Symposia 2024 开发者 工作坊。优秀案例者更有机会在现场介绍和展示所开发的Arm 应用。  \n\n## 四、评审维度：\n\n  \n\n', np.float32(0.5067214)), ('# 初赛提交作品说明\n\n1、提交文件为word格式，[点击下载初赛作品模板](https://img-\noperation.csdnimg.cn/csdn/silkroad/img/1724391598271.docx)。请按照模板进行内容的足量补充。  \n2、作品提交请[点击此处](https://jsj.top/f/PUM7Bs)上传提交，在初赛截止前，如您已提交过初赛作品，想进行二次补充更新，可联系群管理员更新自己的作品。  \n3、初赛作品应符合大赛官方提供的任一底层构建思路，还可从官方提供的赛题任务中进行主题选择，具体参见下文档。\n\n4、原则上初赛仅需提供思路即可，在决赛阶段主办方会提供硬件设备，决赛人选可在决赛阶段完成作品开发。**也鼓励大家在初赛期间实现代码的编译和调试，初赛作品的附加材料中提供相关材料可加分！**  \n虚拟环境使用参考资料： <https://learn.microsoft.com/zh-cn/windows/arm/create-arm-vm>', np.float32(0.48829496)), ('  \n· 这个指南将介绍如何使用 Arm64EC 将 C/C++ 依赖项移植到 Arm64。\n\n## 三、决赛说明\n\n初赛评审后，将有20个队伍入围决赛  \n针对这20支团队，官方将提供 Arm Windows 电脑，要求其将初赛作品在该电脑上实现。  \n 入围决赛的参赛者(团队)需另外提交参赛项目文档(提交内容见下文)。2024年9月30日公布入围决赛名单。  \nl作品提交截止时间:2024年10月25日  \nl提交方式:从大赛网站上传  \nl项目文档提交内容:  \n¡a. 方案详细阐述PPT(必选)  \n¡b. 可实现的运行 demo 演示视频(必选)  \n¡c. 代码文件( 可选)  \nPowerpoint\n等演示文件[可点击下载PPT模板，PPT内应包含模板标注的最基础的资料，如有更详细的资料提供也欢迎大家自行在PPT内补充。](https://img-\noperation.csdnimg.cn/csdn/silkroad/img/1727589834349.pptx)\n\n**决赛作品提交地址：[<https://jsj.top/f/m5lcQp>](https://jsj.top/f/m5lcQp)', np.float32(0.47154218)), ('在Arm 架构的 Windows PC\n上进行应用程序开发，参赛作品不限其所使用的技术以及所属业务领域，**可任选以下指定赛题任务进行参赛或自由发挥，自拟题目。**\n\n**任务1：基于端侧大模型推理框架，如llama.cpp、MNN、mlc-llm等（使用Arm\nCPU），结合如RAG、Agent等，实现具备一个基本功能的小程序**  \n评判标准：性能优化、功能完善、创意等  \n例如：相同参数量模型优化的生成速度与效果  \n通过口语化形式搜索并找到包含相关内容的文件，并总结内容）\n\n**任务2：从正常对话速度，实时从中抓取时间信息**  \n基于端 侧大模型推理框架，如llama.cpp、MNN、mc-\nlm等(使用ArmCPU)，结合如RAG、Agent等，实现具备一个提取连续对话内容中准确时间的时间提取助手  \n评判标准：功耗/RAM/准确率（附上：[word.doc](https://img-\noperation.csdnimg.cn/csdn/silkroad/img/1724135326730.docx)', np.float32(0.40508163))]
+from llama_cpp import Llama
+
+llm = Llama(
+      model_path="C:\GZAssistantAppData\models\qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      # n_gpu_layers=-1, # Uncomment to use GPU acceleration
+      # seed=1337, # Uncomment to set a specific seed
+      # n_ctx=2048, # Uncomment to increase the context window
+)
+output = llm(
+      "Q: Name the planets in the solar system? A: ", # Prompt
+      max_tokens=32, # Generate up to 32 tokens, set to None to generate up to the end of the context window
+      stop=["Q:", "\n"], # Stop generating just before the model would generate a new question
+      echo=True # Echo the prompt back in the output
+) # Generate a completion, can also call create_completion
+print(output)

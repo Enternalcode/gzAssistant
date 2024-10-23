@@ -40,6 +40,7 @@ python setup.py install
 
 # qwen llama.cpp compile instruction
 https://qwen.readthedocs.io/zh-cn/latest/run_locally/llama.cpp.html
+llama-cpp-python -C cmake.args="-DGGML_BLAS=ON;-DGGML_BLAS_VENDOR=OpenBLAS"
 
 # wechat
 https://www.jb51.net/python/299112c3b.html
@@ -87,9 +88,8 @@ https://marketing.csdn.net/p/34a48478fffb3594b186a32a4c73dbc6?pId=2684
 # Install llama-cpp-python
 pip install llama-cpp-python -C cmake.args="-DGGML_BLAS=ON;-DGGML_BLAS_VENDOR=OpenBLAS"
 
-# Prompt
-**info** 
-任务2：从正常对话速度，实时从中抓取时间信息
-基于端侧大模型推理框架，如llama.cpp、MNN、mc-lm等(使用ArmCPU)，结合如RAG、Agent等，实现具备一个提取连续对话内容中准确时间的时间提取助手
-**question**
-有哪些端侧大模型推理框架可以使用 
+# Llama.cpp inference config
+AVX = 0 | AVX_VNNI = 0 | AVX2 = 0 | AVX512 = 0 | AVX512_VBMI = 0 | AVX512_VNNI = 0 | AVX512_BF16 = 0 | FMA = 0 | NEON = 1 | SVE = 0 | ARM_FMA = 1 | F16C = 0 | FP16_VA = 0 | RISCV_VECT = 0 | WASM_SIMD = 0 | BLAS = 0 | SSE3 = 0 | SSSE3 = 0 | VSX = 0 | MATMUL_INT8 = 1 | LLAMAFILE = 0 |
+
+# 需求
+场景 + 诱因 + 目的 + 结果

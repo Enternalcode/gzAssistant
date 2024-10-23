@@ -45,7 +45,7 @@ class WeChatAutoResponder:
                                 last_message: str, 
                                 is_use_web_data: bool = True, 
                                 is_use_qa_data: bool = False,
-                                distance_threshold: float | str = 0.47,
+                                distance_threshold: str = 0.47,
                                 k: int = 3
                                 ) -> str:
         if isinstance(distance_threshold, str):
@@ -56,16 +56,18 @@ class WeChatAutoResponder:
         if is_use_web_data:
             self.vector_db.load("url_index.bin", "url_texts.json")
             web_knowledge, web_distance = await self.vector_db.search_async(last_message, k=k, distance_threshold=distance_threshold)
-            self.logger.info(f"匹配到文档知识库内容:\n{web_knowledge}\n分数:{web_distance}")
-            system_prompt += f"""\n使用知识库信息回答用户:{web_knowledge}"""
-        
+            if web_knowledge != "":
+                self.logger.info(f"匹配到文档知识库内容:\n{web_knowledge}\n分数:{web_distance}")
+                system_prompt += f"""\n使用以下知识库信息回答用户:{web_knowledge}"""
+            
         if is_use_qa_data:
             self.vector_db.load("qa_index.bin", "qa_texts.json")
             qa_question, qa_distance = await self.vector_db.search_async(last_message, k=5, distance_threshold=distance_threshold)
             # 找到最相似的问题，并查找预设的答案
             qa_answer = self.get_answer_by_question(question=qa_question)
-            self.logger.info(f"匹配问答知识库:\n问题:\n{qa_question}\n回答:\n{qa_answer}\n分数:{qa_distance}")
-            system_prompt  += f"""\n使用预设答案回答用户: {qa_answer}"""
+            if qa_answer != "":
+                self.logger.info(f"匹配问答知识库:\n问题:\n{qa_question}\n回答:\n{qa_answer}\n分数:{qa_distance}")
+                system_prompt  += f"""\n使用以下预设答案回答用户: {qa_answer}"""
         
         print(f"system_prompt: \n{system_prompt}")
 
@@ -85,7 +87,15 @@ class WeChatAutoResponder:
         # Send the message
         self.wechat_window.SendKeys('{Enter}', waitTime=0)
 
-    async def locate_group_and_check_keyword(self, group_name: str, keyword: str, detection_frequency: int = 5):
+    async def locate_group_and_check_keyword(self, 
+                                            group_name: str, 
+                                            keyword: str, 
+                                            detection_frequency: int = 5,
+                                            is_use_web_data: bool = True, 
+                                            is_use_qa_data: bool = False,
+                                            distance_threshold: str = 0.47,
+                                            k: int = 3
+                                            ):
         self.switch_to_wechat()
         self.bind_session_list()
         self.logger.info("监听中...")
@@ -106,9 +116,15 @@ class WeChatAutoResponder:
                                     start_time = time.time()  # 记录开始时间
                                     self.is_generating_response = True
                                     clean_last_message = last_message.replace(keyword, "")  # 去掉keyword
-                                    self.send_response(f"AI已收到问题:\n{clean_last_message}\n思考中...")
+                                    self.send_response(f"AI已收到问题:\n{clean_last_message}\n 思考中...")
                                     await asyncio.sleep(1)
-                                    response = await self.generate_response(clean_last_message)
+                                    response = await self.generate_response(
+                                        last_message=clean_last_message,
+                                        is_use_web_data=is_use_web_data, 
+                                        is_use_qa_data=is_use_qa_data,
+                                        distance_threshold=distance_threshold,
+                                        k=k
+                                        )
                                     end_time = time.time()  # 记录结束时间
                                     duration = end_time - start_time  # 计算耗时
                                     self.logger.info(f"AI生成回答耗时：{duration:.2f}秒")
