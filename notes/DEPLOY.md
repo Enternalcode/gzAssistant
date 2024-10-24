@@ -23,3 +23,7 @@ https://medium.com/@cch.chichieh/%E7%94%A8%E6%89%8B%E6%A9%9F%E5%B0%B1%E8%83%BD%E
 
 # PowerInfer-Colab-Demo
 https://github.com/AIAnytime/PowerInfer-Colab-Demo/blob/main/PowerInfer.ipynb
+
+
+# 网盘
+https://www.123865.com/s/QJwITd-BDmY

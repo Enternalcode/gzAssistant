@@ -1,14 +1,18 @@
 
+import asyncio
 import json
 import os
 import re
 import socket
+import threading
 import httpx
 from tqdm import tqdm
 import subprocess
 from typing import Dict, List, Optional
 import psutil
 import aiofiles
+import uvicorn
+from library.llama_cpp.server.run import start_server
 
 # def download_file(url: str, output_file: str) -> None:
 #     response = requests.get(url, stream=True)
@@ -106,8 +110,57 @@ async def check_server_status():
         else:
             return False
 
+# async def run_llama_server_async(config_file_path: str = r"configs/server_config.json", run_in_background: bool = True, port: int = 7864):
+#     # 检查配置文件是否存在
+#     if not os.path.exists(config_file_path):
+#         raise FileNotFoundError(f"配置文件 {config_file_path} 不存在。")
 
-async def run_llama_server_async(config_file_path: str = r"configs/server_config.json", run_in_background: bool = True, port: int = 7864):
+#     # 检查端口是否在有效范围内
+#     if not 0 < port < 65536:
+#         raise ValueError("端口号必须在1到65535之间。")
+
+#     # 检查端口是否被占用
+#     try:
+#         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+#             try:
+#                 sock.bind(("", port))
+#             except socket.error as e:
+#                 raise ConnectionError(f"端口 {port} 已被占用。") from e
+#     except Exception as e:
+#         print(f"检查端口时出错: {e}")
+#         raise
+
+#     port_str = str(port)
+#     config_file_abs_path = os.path.abspath(config_file_path)
+#     command = [
+#         'python3',
+#         '-m',
+#         'llama_cpp.server',
+#         '--port', port_str,
+#         '--config_file', config_file_abs_path
+#     ]
+
+#     # 记录日志
+#     print(f"正在启动AI服务器，命令： {' '.join(command)}")
+#     try:
+#         if run_in_background:
+#             proc = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+#             # 可以在这里添加对proc的管理逻辑，例如保存进程ID等
+#         else:
+#             result = subprocess.run(command, check = True)
+#             # 可以根据result进行进一步的处理，例如检查返回码等
+#     except subprocess.CalledProcessError as e:
+#         print(f"子进程执行出错: {e}")
+#         raise
+#     except Exception as e:
+#         print(f"启动服务器时出错: {e}")
+#         raise
+
+async def run_llama_server_async(
+    config_file_path: str = r"configs/server_config.json",
+    run_in_background: bool = True,
+    port: int = 7864
+):
     # 检查配置文件是否存在
     if not os.path.exists(config_file_path):
         raise FileNotFoundError(f"配置文件 {config_file_path} 不存在。")
@@ -118,29 +171,28 @@ async def run_llama_server_async(config_file_path: str = r"configs/server_config
 
     # 检查端口是否被占用
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(("", port))
-        sock.close()
-    except socket.error as e:
-        print(f"端口 {port} 已被占用。")
-
-    port_str = str(port)
-    config_file_abs_path = os.path.abspath(config_file_path)
-    command = [
-        'python',
-        '-m', 
-        'llama_cpp.server',
-        '--port', port_str,
-        '--config_file', config_file_abs_path
-    ]
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.bind(("", port))
+            except socket.error as e:
+                raise ConnectionError(f"端口 {port} 已被占用。") from e
+    except Exception as e:
+        print(f"检查端口时出错: {e}")
+        raise
 
     # 记录日志
-    print(f"正在启动AI服务器，命令： {' '.join(command)}")
-    if run_in_background:
-        # 在后台运行，捕获输出和错误
-        subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    else:
-        subprocess.run(command, check=True)
+    print(f"正在启动AI服务器，配置文件路径: {config_file_path}")
+
+    try:
+        if run_in_background:
+            thread = threading.Thread(target=start_server, args=(config_file_path, '127.0.0.1', port))
+            thread.start()
+            # 可以在这里添加对线程的管理逻辑
+        else:
+            start_server(config_file=config_file_path, host='127.0.0.1', port=port)
+    except Exception as e:
+        print(f"启动服务器时出错: {e}")
+        raise
 
 
 def send_rerank_request(query: str, documents: List[str]):

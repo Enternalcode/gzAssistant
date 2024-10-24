@@ -23,7 +23,7 @@
   },
   {
    "optionDest": "name",
-   "value": "ai-gz-v1.5"
+   "value": "ai-gz-v2.3"
   },
   {
    "optionDest": "clean_build",
@@ -60,10 +60,6 @@
   {
    "optionDest": "datas",
    "value": "C:/Users/966/.pyenv-win-venv/envs/gzAssistant/Lib/site-packages/nicegui;nicegui/"
-  },
-  {
-   "optionDest": "hookspath",
-   "value": "C:/Users/966/Projects/GuangZhiAssistant-main/hooks"
   },
   {
    "optionDest": "hiddenimports",
@@ -142,12 +138,8 @@
    "value": "webview"
   },
   {
-   "optionDest": "datas",
-   "value": "C:/Users/966/Projects/GuangZhiAssistant-main/configs;."
-  },
-  {
-   "optionDest": "hiddenimports",
-   "value": "llama_cpp"
+   "optionDest": "hookspath",
+   "value": "C:/Users/966/Projects/GuangZhiAssistant-main/hooks"
   }
  ],
  "nonPyinstallerOptions": {

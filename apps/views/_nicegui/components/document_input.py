@@ -5,7 +5,7 @@ from tinydb import Query
 from apps.views._nicegui.components.utils import get_stored_content
 
 
-default_config_key = "slm_model_url"
+default_config_key = "document_url"
 
 
 def document_input() -> input:

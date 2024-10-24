@@ -1,5 +1,4 @@
 from tinydb import TinyDB
-from apps.utils.common import singleton
 
 class DB:
     _instance = None
