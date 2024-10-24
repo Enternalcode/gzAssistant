@@ -23,11 +23,11 @@
   },
   {
    "optionDest": "name",
-   "value": "ai-gz-v2.3"
+   "value": "ai-gz-v2.4"
   },
   {
    "optionDest": "clean_build",
-   "value": false
+   "value": true
   },
   {
    "optionDest": "strip",
@@ -140,6 +140,10 @@
   {
    "optionDest": "hookspath",
    "value": "C:/Users/966/Projects/GuangZhiAssistant-main/hooks"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/966/Projects/GuangZhiAssistant-main/library;library/"
   }
  ],
  "nonPyinstallerOptions": {
