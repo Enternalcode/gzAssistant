@@ -107,7 +107,7 @@ async def check_server_status():
             return False
 
 
-async def run_llama_server_async(config_file_path: str = r"./server_config.json", run_in_background: bool = True, port: int = 7864):
+async def run_llama_server_async(config_file_path: str = r"configs/server_config.json", run_in_background: bool = True, port: int = 7864):
     # 检查配置文件是否存在
     if not os.path.exists(config_file_path):
         raise FileNotFoundError(f"配置文件 {config_file_path} 不存在。")
@@ -138,8 +138,7 @@ async def run_llama_server_async(config_file_path: str = r"./server_config.json"
     print(f"正在启动AI服务器，命令： {' '.join(command)}")
     if run_in_background:
         # 在后台运行，捕获输出和错误
-        subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
+        subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     else:
         subprocess.run(command, check=True)
 

@@ -4,10 +4,12 @@ import time
 from uiautomation import WindowControl
 from apps.services.slm.slm_service import SlmService
 from apps.services.vector_search.hnswlib_vectordb import HnswlibVectorDB
+from apps.utils.common import singleton
 from apps.utils.config import APPLICATION_DATA_PATH
 
+@singleton
 class WeChatAutoResponder:
-    def __init__(self, ai_service: SlmService, logger, window_title='Weixin', fixed_dim: int = 1024):
+    def __init__(self, ai_service: SlmService, logger, window_title='Weixin', fixed_dim: int = 1024, page_state = None):
         self.wechat_window = WindowControl(Name=window_title)
         self.session_list = None
         self.answered_messages = set()
@@ -15,6 +17,7 @@ class WeChatAutoResponder:
         self.vector_db = HnswlibVectorDB(ai_service=ai_service, fixed_dim=fixed_dim)
         self.logger = logger
         self.is_generating_response = False
+        self.stop_event = asyncio.Event()
 
     def switch_to_wechat(self):
         """Switch to the WeChat window."""
@@ -90,7 +93,7 @@ class WeChatAutoResponder:
     async def locate_group_and_check_keyword(self, 
                                             group_name: str, 
                                             keyword: str, 
-                                            detection_frequency: int = 5,
+                                            detection_frequency: str = '5',
                                             is_use_web_data: bool = True, 
                                             is_use_qa_data: bool = False,
                                             distance_threshold: str = 0.47,
@@ -101,7 +104,11 @@ class WeChatAutoResponder:
         self.logger.info("监听中...")
         self.logger.info(f"检测频率：{detection_frequency}s/次")
         lock = asyncio.Lock()
-        while True:
+        if isinstance(detection_frequency, str):
+            detection_frequency = int(detection_frequency)
+        while not self.stop_event.is_set():
+            await asyncio.sleep(detection_frequency)
+            self.logger.info("执行一次检测...")
             if not self.is_generating_response:
                 async with lock:
                     for session in self.session_list.GetChildren()[:5]:
@@ -136,7 +143,10 @@ class WeChatAutoResponder:
                                     self.is_generating_response = False
             else:
                 # 限流，AI正在生成问题
-                self.logger.info("限流，AI正在回答中跳过此次检测， 检测频率：{detection_frequency}s/次")
+                self.logger.info(f"限流，AI正在回答中跳过此次检测， 检测频率：{detection_frequency}s/次")
+        self.logger.info("停止监听")
+    
+    async def stop_listening(self):
+        self.stop_event.set()
 
-            await asyncio.sleep(detection_frequency)
                 

@@ -1,0 +1,157 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "C:/Users/966/Projects/GuangZhiAssistant-main/main.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": false
+  },
+  {
+   "optionDest": "console",
+   "value": true
+  },
+  {
+   "optionDest": "icon_file",
+   "value": "C:/Users/966/Pictures/pbb4c-mlsc0-001.ico"
+  },
+  {
+   "optionDest": "name",
+   "value": "ai-gz-v1.5"
+  },
+  {
+   "optionDest": "clean_build",
+   "value": false
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": false
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": false
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/966/.pyenv-win-venv/envs/gzAssistant/Lib/site-packages/nicegui;nicegui/"
+  },
+  {
+   "optionDest": "hookspath",
+   "value": "C:/Users/966/Projects/GuangZhiAssistant-main/hooks"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "aiofiles"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "bs4"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "fastapi"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "hnswlib"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "html2text"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "httpx"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "ifaddr"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "matplotlib"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "nicegui_highcharts"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "pyecharts"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "pytest"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "starlette"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "tinydb"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "tqdm"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "typing_extensions"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "uiautomation"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "uvicorn"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "vbuild"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "webview"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/966/Projects/GuangZhiAssistant-main/configs;."
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "llama_cpp"
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": true,
+  "manualArguments": ""
+ }
+}

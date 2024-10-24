@@ -1,0 +1,2 @@
+2024-10-24 16:34:29.418 wechat_auto_responder.py[21] switch_to_wechat -> Find Control Timeout(10s): {Name: 'Weixin', ControlType: WindowControl}
+2024-10-24 16:35:25.413 wechat_auto_responder.py[21] switch_to_wechat -> Find Control Timeout(10s): {Name: 'Weixin', ControlType: WindowControl}

@@ -1,4 +1,5 @@
 # https://github.com/zauberzeug/nicegui/issues/355
+https://www.cnblogs.com/0523jy/p/16086132.html
 package with pyinstall
  ./AI广智.exe > output.log 2>&1
 
