@@ -169,17 +169,6 @@ async def run_llama_server_async(
     if not 0 < port < 65536:
         raise ValueError("端口号必须在1到65535之间。")
 
-    # 检查端口是否被占用
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            try:
-                sock.bind(("", port))
-            except socket.error as e:
-                raise ConnectionError(f"端口 {port} 已被占用。") from e
-    except Exception as e:
-        print(f"检查端口时出错: {e}")
-        raise
-
     # 记录日志
     print(f"正在启动AI服务器，配置文件路径: {config_file_path}")
 

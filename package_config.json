@@ -15,7 +15,7 @@
   },
   {
    "optionDest": "console",
-   "value": true
+   "value": false
   },
   {
    "optionDest": "icon_file",
@@ -23,7 +23,7 @@
   },
   {
    "optionDest": "name",
-   "value": "ai-gz-v2.4"
+   "value": "\u5fae\u4fe1\u8fd0\u8425AI\u52a9\u624bv2.0"
   },
   {
    "optionDest": "clean_build",
@@ -123,10 +123,6 @@
   },
   {
    "optionDest": "hiddenimports",
-   "value": "uiautomation"
-  },
-  {
-   "optionDest": "hiddenimports",
    "value": "uvicorn"
   },
   {
@@ -144,6 +140,34 @@
   {
    "optionDest": "datas",
    "value": "C:/Users/966/Projects/GuangZhiAssistant-main/library;library/"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "comtypes"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "comtypes.client"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "comtypes.stream"
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "pkg_resources.extern"
+  },
+  {
+   "optionDest": "binaries",
+   "value": "C:/Users/966/.pyenv-win-venv/envs/gzAssistant/Lib/site-packages/uiautomation/bin/UIAutomationClient_VC140_X64.dll;."
+  },
+  {
+   "optionDest": "binaries",
+   "value": "C:/Users/966/.pyenv-win-venv/envs/gzAssistant/Lib/site-packages/uiautomation/bin/UIAutomationClient_VC140_X86.dll;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/966/.pyenv-win-venv/envs/gzAssistant/Lib/site-packages/comtypes;comtypes/"
   }
  ],
  "nonPyinstallerOptions": {

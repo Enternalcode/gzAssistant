@@ -108,7 +108,6 @@ class WeChatAutoResponder:
             detection_frequency = int(detection_frequency)
         while not self.stop_event.is_set():
             await asyncio.sleep(detection_frequency)
-            self.logger.info("执行一次检测...")
             if not self.is_generating_response:
                 async with lock:
                     for session in self.session_list.GetChildren()[:5]:

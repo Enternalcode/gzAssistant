@@ -93,3 +93,32 @@ AVX = 0 | AVX_VNNI = 0 | AVX2 = 0 | AVX512 = 0 | AVX512_VBMI = 0 | AVX512_VNNI =
 
 # 需求
 场景 + 诱因 + 目的 + 结果
+
+# bench mark
+./llama-bench -m "C:\Users\966\Projects\models\qwen2.5-1.5b-instruct-q4_k_m.gguf" -m "C:\Users\966\Projects\models\qwen2.5-1.5b-instruct-q4_0.gguf" -p 0 -n 128,256,512
+
+C:\Users\966\Projects\llama.cpp-master-llvm\build-arm64-windows-llvm-release\bin> ./llama-bench -m "C:\Users\966\Projects\models\qwen2.5-1.5b-instruct-q4_k_m.gguf" -m "C:\Users\966\Projects\models\qwen2.5-1.5b-instruct-q4_0.gguf" -p 0 -n
+ 128,256,512
+| model                          |       size |     params | backend    | threads |          test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | ------: | ------------: | -------------------: |
+| qwen2 ?B Q4_K - Medium         |   1.04 GiB |     1.78 B | CPU        |       8 |         tg128 |         19.88 ± 0.99 |
+| qwen2 ?B Q4_K - Medium         |   1.04 GiB |     1.78 B | CPU        |       8 |         tg256 |         18.18 ± 0.71 |
+| qwen2 ?B Q4_K - Medium         |   1.04 GiB |     1.78 B | CPU        |       8 |         tg512 |         17.21 ± 0.36 |
+| qwen2 ?B Q4_0                  | 1011.16 MiB |     1.78 B | CPU        |       8 |         tg128 |         18.91 ± 0.35 |
+| qwen2 ?B Q4_0                  | 1011.16 MiB |     1.78 B | CPU        |       8 |         tg256 |         18.54 ± 0.32 |
+| qwen2 ?B Q4_0                  | 1011.16 MiB |     1.78 B | CPU        |       8 |         tg512 |         17.63 ± 0.14 |
+
+
+C:\Users\966\Projects\llama.cpp-master-mscv\build\bin\Release> ./llama-bench -m "C:\Users\966\Projects\models\qwen2.5-1.5b-instruct-q4_k_m.gguf" -m "C:\Users\966\Projects\models\qwen2.5-1.5b-instruct-q4_0.gguf" -p 0 -n 128,256,512
+
+| model                          |       size |     params | backend    | threads |          test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | ------: | ------------: | -------------------: |
+| qwen2 ?B Q4_K - Medium         |   1.04 GiB |     1.78 B | CPU        |       8 |         tg128 |         23.75 ± 0.71 |
+| qwen2 ?B Q4_K - Medium         |   1.04 GiB |     1.78 B | CPU        |       8 |         tg256 |         19.50 ± 1.79 |
+| qwen2 ?B Q4_K - Medium         |   1.04 GiB |     1.78 B | CPU        |       8 |         tg512 |         20.05 ± 1.34 |
+| qwen2 ?B Q4_0                  | 1011.16 MiB |     1.78 B | CPU        |       8 |         tg128 |         22.16 ± 1.49 |
+| qwen2 ?B Q4_0                  | 1011.16 MiB |     1.78 B | CPU        |       8 |         tg256 |         22.07 ± 0.35 |
+| qwen2 ?B Q4_0                  | 1011.16 MiB |     1.78 B | CPU        |       8 |         tg512 |         21.03 ± 0.13 |
+
+# uiauto
+C:\Users\966\.pyenv-win-venv\envs\gzAssistant\Lib\site-packages\uiautomation\bin

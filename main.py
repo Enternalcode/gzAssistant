@@ -1,7 +1,6 @@
 from nicegui import ui, native
 import asyncio
 import logging
-import sys
 from apps.services.add_external_data.crawler.fork import ForkManage, split_by_fixed_length_optimized
 from apps.services.slm.slm_service import SlmService
 from apps.services.vector_search.hnswlib_vectordb import HnswlibVectorDB
@@ -17,6 +16,7 @@ from apps.views._nicegui.components.listening_keyword import listening_keyword_i
 from apps.views._nicegui.components.utils import disable, get_stored_content
 from apps.utils.config import create_folders_from_list
 from apps.views._nicegui.qa_page import faq_page
+import sys_redirect 
 
 def init():
     """
@@ -208,7 +208,7 @@ def main_page():
     with ui.left_drawer(top_corner=True, bottom_corner=True).style("background-color: #ebf1fa").props('bordered') as left_drawer:
         ui.markdown("#### 菜单")
         with ui.column():
-            ui.button(text="使用说明", icon="book", on_click=lambda: ui.navigate.to('https://www.nicheecho.com/instructions/wechat-ai'))
+            ui.button(text="使用说明", icon="book", on_click=lambda: ui.navigate.to('https://www.nicheecho.com'))
 
     with ui.footer().style("background-color: #3874c8").classes(
         "items-center justify-center"
@@ -222,6 +222,9 @@ def main_page():
             main_content()
         with ui.tab_panel(qa_tab):
             faq_page()
+
+
+
     
 ui.run(
     title="微信运营AI助手", 
@@ -234,5 +237,4 @@ ui.run(
     favicon="🚀",
     language="zh-CN",
     reload=False
-    # native=True
 )
