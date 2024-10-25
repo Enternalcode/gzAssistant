@@ -1,7 +1,3 @@
 # GuangZhiAssistant
-
-流程
-系统换语言
-打包
-录屏
+微信运营AI助手
 
